@@ -27,9 +27,11 @@ public class PlaneController : MonoBehaviour
         }
     }
 
+    internal Action OnGameOver;
+
     private void Awake()
     {
-        _rb = GetComponent<Rigidbody>();
+        _rb = GetComponentInChildren<Rigidbody>();
         _myTransform = transform;
         _currentFuel = 1f;
     }
@@ -45,7 +47,6 @@ public class PlaneController : MonoBehaviour
         _inputController.PointerDown -= Accelerate;
         _inputController.PointerUp -= StopAccelerate;
     }
-
 
     private void Update()
     {
@@ -92,6 +93,9 @@ public class PlaneController : MonoBehaviour
     private void UpdateFuel(float fuelValue)
     {
         _fuelImage.fillAmount = fuelValue;
+        if (fuelValue <= 0)
+            OnGameOver?.Invoke();
+
     }
 
     [ContextMenu("Refill Fuel")]
