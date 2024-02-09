@@ -15,8 +15,6 @@ public class PlaneController : MonoBehaviour
     private Rigidbody _rb;
     private Transform _myTransform;
     private float _currentFuel;
-    private float _pitch;
-    private bool _isAccelerating;
     private const string GROUND_LAYER = "Ground";
 
     private float _responseModifier
@@ -48,18 +46,6 @@ public class PlaneController : MonoBehaviour
         _inputController.PointerUp -= StopAccelerate;
     }
 
-    private void Update()
-    {
-        // if (_currentFuel != 0)
-        //     _rb.velocity = Vector3.right * _velocity;
-    }
-
-    private void FixedUpdate()
-    {
-        //ToDo: Chcek not rotating
-        // transform.rotation = Quaternion.Euler(0, 0, _rb.rotation.y * _rotationSpeed);
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
         var collidingLayer = LayerMask.LayerToName(collision.collider.gameObject.layer);
@@ -76,8 +62,6 @@ public class PlaneController : MonoBehaviour
         if (_currentFuel <= 0)
             return;
 
-        _isAccelerating = true;
-
         _rb.velocity = Vector3.up * _velocity;
         _rb.AddTorque(_myTransform.forward * _velocity * _responseModifier);
 
@@ -87,7 +71,6 @@ public class PlaneController : MonoBehaviour
 
     private void StopAccelerate()
     {
-        _isAccelerating = false;
     }
 
     private void UpdateFuel(float fuelValue)
@@ -95,7 +78,6 @@ public class PlaneController : MonoBehaviour
         _fuelImage.fillAmount = fuelValue;
         if (fuelValue <= 0)
             OnGameOver?.Invoke();
-
     }
 
     [ContextMenu("Refill Fuel")]
