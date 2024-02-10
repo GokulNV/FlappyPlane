@@ -6,13 +6,12 @@ public class RotateAround : MonoBehaviour
 {
     [SerializeField] private float _rotationSpeed;
     [SerializeField] private Transform _pivotObject;
-    [SerializeField] private InputController _inputController;
     [SerializeField] private PlaneController _planeController;
     private Transform _myTransform;
     private float _initialSpeed;
     private float _speedReductionFactor = 0.05f;
     private bool _canRotate = true;
-    private Coroutine _accelerateCoroutine;
+    private Coroutine _speedUpdateCoroutine;
     private bool _isAccelerating = false;
 
     private void Awake()
@@ -24,15 +23,15 @@ public class RotateAround : MonoBehaviour
 
     private void OnEnable()
     {
-        _inputController.PointerDown += DecreaseSpeed;
-        _inputController.PointerUp += NormaliseSpeed;
+        _planeController.PointerDown += DecreaseSpeed;
+        _planeController.PointerUp += NormaliseSpeed;
         _planeController.OnGameOver += StopRotation;
     }
 
     private void OnDisable()
     {
-        _inputController.PointerDown -= DecreaseSpeed;
-        _inputController.PointerUp -= NormaliseSpeed;
+        _planeController.PointerDown -= DecreaseSpeed;
+        _planeController.PointerUp -= NormaliseSpeed;
         _planeController.OnGameOver -= StopRotation;
     }
 
@@ -49,36 +48,48 @@ public class RotateAround : MonoBehaviour
 
     private void DecreaseSpeed()
     {
-        if (_rotationSpeed <= _initialSpeed / 2)
-            return;
-
-        _isAccelerating = true;
-        if (_accelerateCoroutine != null)
-        {
-            StopCoroutine(nameof(AccelerateSpeed));
-            _accelerateCoroutine = null;
-        }
-
-        UpdateRotationSpeed(_rotationSpeed - _speedReductionFactor);
+        ChangeSpeed(false);
     }
 
     private void NormaliseSpeed()
     {
-        _isAccelerating = false;
-        _accelerateCoroutine = StartCoroutine(nameof(AccelerateSpeed));
+        ChangeSpeed(true);
     }
 
-    private IEnumerator AccelerateSpeed()
+    private void ChangeSpeed(bool isIncrease)
     {
-        while (!_isAccelerating && _rotationSpeed < _initialSpeed)
+        _isAccelerating = !isIncrease;
+        if (_speedUpdateCoroutine != null)
         {
-            UpdateRotationSpeed(_rotationSpeed + _speedReductionFactor);
-            yield return null;
+            StopCoroutine(nameof(UpdateSpeed));
+            _speedUpdateCoroutine = null;
+        }
+
+        _speedUpdateCoroutine = StartCoroutine(UpdateSpeed(isIncrease));
+    }
+
+    private IEnumerator UpdateSpeed(bool isIncrease)
+    {
+        if(isIncrease)
+        {
+            while (!_isAccelerating && _rotationSpeed < _initialSpeed)
+            {
+                UpdateRotationValue(_rotationSpeed + _speedReductionFactor);
+                yield return null;
+            }
+        }
+        else
+        {
+            while (_isAccelerating && _rotationSpeed > _initialSpeed / 2)
+            {
+                UpdateRotationValue(_rotationSpeed - _speedReductionFactor);
+                yield return null;
+            }
         }
     }
 
-    private void UpdateRotationSpeed(float value)
+    private void UpdateRotationValue(float value)
     {
-        _rotationSpeed = Mathf.Clamp(value, _rotationSpeed / 2, _rotationSpeed);
+        _rotationSpeed = Mathf.Clamp(value, _initialSpeed / 2, _initialSpeed);
     }
 }

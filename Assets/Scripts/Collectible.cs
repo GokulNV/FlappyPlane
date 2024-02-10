@@ -4,11 +4,11 @@ using UnityEngine;
 public class Collectible : MonoBehaviour
 {
     internal Action<Collectible> OnCollected;
-    private const string AIRPLANE_LAYER = "AirPlane";
+    private const string AIRPLANE_LAYER = "Airplane";
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collider)
     {
-        var collidingLayer = LayerMask.LayerToName(collision.collider.gameObject.layer);
+        var collidingLayer = LayerMask.LayerToName(collider.gameObject.layer);
         Debug.Log(collidingLayer);
         if (collidingLayer == AIRPLANE_LAYER)
         {

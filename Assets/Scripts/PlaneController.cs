@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class PlaneController : MonoBehaviour
 {
@@ -8,7 +9,6 @@ public class PlaneController : MonoBehaviour
     [SerializeField] private float _rotationSpeed = 10f;
     [SerializeField] private float _fuelUsageFactor = 0.01f;
     [SerializeField] private float _responsiveness = 5f;
-    [SerializeField] private InputController _inputController;
     [SerializeField] private Image _fuelImage;
     [SerializeField] private LayerMask _groundLayer;
 
@@ -16,6 +16,7 @@ public class PlaneController : MonoBehaviour
     private Transform _myTransform;
     private float _currentFuel;
     private const string GROUND_LAYER = "Ground";
+    private bool _isAccelerating = false;
 
     private float _responseModifier
     {
@@ -25,6 +26,8 @@ public class PlaneController : MonoBehaviour
         }
     }
 
+    internal Action PointerDown;
+    internal Action PointerUp;
     internal Action OnGameOver;
 
     private void Awake()
@@ -34,16 +37,25 @@ public class PlaneController : MonoBehaviour
         _currentFuel = 1f;
     }
 
-    private void OnEnable()
+    private void Update()
     {
-        _inputController.PointerDown += Accelerate;
-        _inputController.PointerUp += StopAccelerate;
-    }
+        if (!_isAccelerating && EventSystem.current.IsPointerOverGameObject())
+            return;
 
-    private void OnDisable()
-    {
-        _inputController.PointerDown -= Accelerate;
-        _inputController.PointerUp -= StopAccelerate;
+        if (Input.GetMouseButtonDown(0))
+        {
+            _isAccelerating = true;
+            PointerDown?.Invoke();
+        }
+        if (_isAccelerating && Input.GetMouseButton(0))
+        {
+            Accelerate();
+        }
+        else if(_isAccelerating)
+        {
+            PointerUp?.Invoke();
+            StopAccelerate();
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -62,6 +74,7 @@ public class PlaneController : MonoBehaviour
         if (_currentFuel <= 0)
             return;
 
+        _isAccelerating = true;
         _rb.velocity = Vector3.up * _velocity;
         _rb.AddTorque(_myTransform.forward * _velocity * _responseModifier);
 
@@ -71,6 +84,7 @@ public class PlaneController : MonoBehaviour
 
     private void StopAccelerate()
     {
+        _isAccelerating = false;
     }
 
     private void UpdateFuel(float fuelValue)
