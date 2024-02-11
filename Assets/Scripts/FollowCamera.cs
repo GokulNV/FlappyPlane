@@ -13,7 +13,7 @@ public class FollowCamera : MonoBehaviour
         _myTransform = transform;
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         _myTransform.position = Vector3.MoveTowards(_myTransform.position, _cameraPov.position, Time.deltaTime * _speed);
         _myTransform.LookAt(_airplane.position);

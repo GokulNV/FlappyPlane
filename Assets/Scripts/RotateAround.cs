@@ -1,12 +1,10 @@
 using System.Collections;
-using System.Diagnostics.Tracing;
 using UnityEngine;
 
 public class RotateAround : MonoBehaviour
 {
     [SerializeField] private float _rotationSpeed;
     [SerializeField] private Transform _pivotObject;
-    [SerializeField] private PlaneController _planeController;
     private Transform _myTransform;
     private float _initialSpeed;
     private float _speedReductionFactor = 0.05f;
@@ -23,27 +21,39 @@ public class RotateAround : MonoBehaviour
 
     private void OnEnable()
     {
-        _planeController.PointerDown += DecreaseSpeed;
-        _planeController.PointerUp += NormaliseSpeed;
-        _planeController.OnGameOver += StopRotation;
+        InGameEventHandler.StartGame += StartRotation;
+        InGameEventHandler.PointerDown += DecreaseSpeed;
+        InGameEventHandler.PointerUp += NormaliseSpeed;
+        InGameEventHandler.OnGameOver += StopRotation;
     }
 
     private void OnDisable()
     {
-        _planeController.PointerDown -= DecreaseSpeed;
-        _planeController.PointerUp -= NormaliseSpeed;
-        _planeController.OnGameOver -= StopRotation;
+        InGameEventHandler.StartGame -= StartRotation;
+        InGameEventHandler.PointerDown -= DecreaseSpeed;
+        InGameEventHandler.PointerUp -= NormaliseSpeed;
+        InGameEventHandler.OnGameOver -= StopRotation;
     }
 
-    private void Update()
+    private void StartRotation()
     {
-        if (_canRotate)
+        _canRotate = true;
+        StartCoroutine(nameof(RotatePlane));
+    }
+
+    private IEnumerator RotatePlane()
+    {
+        while (_canRotate)
+        {
             _myTransform.RotateAround(_pivotObject.position, -Vector3.up, _rotationSpeed * Time.deltaTime);
+            yield return null;
+        }
     }
 
     private void StopRotation()
     {
         _canRotate = false;
+        StopCoroutine(nameof(RotatePlane));
     }
 
     private void DecreaseSpeed()
@@ -70,7 +80,7 @@ public class RotateAround : MonoBehaviour
 
     private IEnumerator UpdateSpeed(bool isIncrease)
     {
-        if(isIncrease)
+        if (isIncrease)
         {
             while (!_isAccelerating && _rotationSpeed < _initialSpeed)
             {

@@ -1,18 +1,17 @@
-using System;
 using UnityEngine;
 
 public class Collectible : MonoBehaviour
 {
-    internal Action<Collectible> OnCollected;
-    private const string AIRPLANE_LAYER = "Airplane";
+    [SerializeField] private CollectibleType type;
+    public CollectibleType Type => type;
 
     private void OnTriggerEnter(Collider collider)
     {
         var collidingLayer = LayerMask.LayerToName(collider.gameObject.layer);
-        Debug.Log(collidingLayer);
-        if (collidingLayer == AIRPLANE_LAYER)
+        if (collidingLayer == GlobalConstants.AIRPLANE_LAYER)
         {
-            OnCollected?.Invoke(this);
+            InGameEventHandler.CollectibleAcquired?.Invoke(this);
+            gameObject.SetActive(false);
         }
     }
 }
