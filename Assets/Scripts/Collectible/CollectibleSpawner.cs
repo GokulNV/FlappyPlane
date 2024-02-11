@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using FlappyPlane.Events;
 using UnityEngine;
 
 namespace FlappyPlane.Collectibles
@@ -28,7 +29,23 @@ namespace FlappyPlane.Collectibles
             _centerPosition = _centerTransform.position;
             Vector3 planePosition = _planeTransform.position;
             _distanceToPlane = Vector3.Distance(_centerPosition, planePosition);
+        }
 
+        private void OnEnable()
+        {
+            InGameEventHandler.StartGame += StartGame;
+        }
+
+        private void OnDisable()
+        {
+            InGameEventHandler.StartGame -= StartGame;
+        }
+
+        /// <summary>
+        /// Starts spawning collectibles when the game starts.
+        /// </summary>
+        private void StartGame()
+        {
             StartCoroutine(StartSpawning());
         }
 

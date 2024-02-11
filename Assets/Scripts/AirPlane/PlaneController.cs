@@ -22,13 +22,14 @@ namespace FlappyPlane.AirPlane
         }
 
         /// <summary>
-        /// Initializes the Rigidbody and current fuel value.
+        /// Initializes the Rigidbody, current fuel value and set the gravity to false.
         /// </summary>
         private void Awake()
         {
             _rb = GetComponentInChildren<Rigidbody>();
             _myTransform = transform;
             _currentFuel = 1f;
+            _rb.useGravity = false;
         }
 
         /// <summary>
@@ -103,11 +104,12 @@ namespace FlappyPlane.AirPlane
         }
 
         /// <summary>
-        /// Resets the current fuel value when the game starts.
+        /// Resets the current fuel value when the game starts and set the Gravity to True.
         /// </summary>
         private void StartGame()
         {
             _currentFuel = 1f;
+            _rb.useGravity = true;
         }
     }
 }

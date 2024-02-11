@@ -11,6 +11,7 @@ namespace FlappyPlane.Core
         [SerializeField] private TMP_Text _scoreText;
         [SerializeField] private TMP_Text _gameOverScoreText;
         [SerializeField] private Image _fuelImage;
+        [SerializeField] private GameObject _startGameScreen;
         [SerializeField] private GameObject _gameOverScreen;
 
         /// <summary>
@@ -66,6 +67,12 @@ namespace FlappyPlane.Core
         public void OnClickRetryButton()
         {
             SceneManager.LoadScene("GameScene");
+        }
+
+        public void OnClickStartGameButton()
+        {
+            _startGameScreen.SetActive(false);
+            InGameEventHandler.StartGame?.Invoke();
         }
     }
 }
