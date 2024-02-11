@@ -18,6 +18,9 @@ public class PlaneController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Initializes the Rigidbody and current fuel value.
+    /// </summary>
     private void Awake()
     {
         _rb = GetComponentInChildren<Rigidbody>();
@@ -25,16 +28,27 @@ public class PlaneController : MonoBehaviour
         _currentFuel = 1f;
     }
 
+    /// <summary>
+    /// Subscribes to the necessary events when the object is enabled.
+    /// </summary>
     private void OnEnable()
     {
+        InGameEventHandler.StartGame += StartGame;
         InGameEventHandler.OnFuelUpdate += UpdateFuel;
     }
 
+    /// <summary>
+    /// Unsubscribes from the events when the object is disabled.
+    /// </summary>
     private void OnDisable()
     {
+        InGameEventHandler.StartGame -= StartGame;
         InGameEventHandler.OnFuelUpdate -= UpdateFuel;
     }
 
+    /// <summary>
+    /// Checks for user input to control the acceleration of the plane.
+    /// </summary>
     private void Update()
     {
         if (!_isAccelerating && EventSystem.current.IsPointerOverGameObject())
@@ -52,6 +66,9 @@ public class PlaneController : MonoBehaviour
             StopAccelerate();
     }
 
+    /// <summary>
+    /// Accelerates the plane based on user input and fuel availability.
+    /// </summary>
     private void Accelerate()
     {
         if (_currentFuel <= 0)
@@ -64,14 +81,29 @@ public class PlaneController : MonoBehaviour
         InGameEventHandler.Accelerate?.Invoke();
     }
 
+    /// <summary>
+    /// Stops the plane from accelerating.
+    /// </summary>
     private void StopAccelerate()
     {
         _isAccelerating = false;
         InGameEventHandler.PointerUp?.Invoke();
     }
 
+    /// <summary>
+    /// Updates the current fuel value.
+    /// </summary>
+    /// <param name="fuelValue">The updated fuel value.</param>
     private void UpdateFuel(float fuelValue)
     {
         _currentFuel = fuelValue;
+    }
+
+    /// <summary>
+    /// Resets the current fuel value when the game starts.
+    /// </summary>
+    private void StartGame()
+    {
+        _currentFuel = 1f;
     }
 }

@@ -35,12 +35,18 @@ public class RotateAround : MonoBehaviour
         InGameEventHandler.OnGameOver -= StopRotation;
     }
 
+    /// <summary>
+    /// Starts rotating the object when the game starts.
+    /// </summary>
     private void StartRotation()
     {
         _canRotate = true;
         StartCoroutine(nameof(RotatePlane));
     }
 
+    /// <summary>
+    /// Coroutine to continuously rotate the object.
+    /// </summary>
     private IEnumerator RotatePlane()
     {
         while (_canRotate)
@@ -50,22 +56,35 @@ public class RotateAround : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Stops rotating the object when the game is over.
+    /// </summary>
     private void StopRotation()
     {
         _canRotate = false;
         StopCoroutine(nameof(RotatePlane));
     }
 
+    /// <summary>
+    /// Decreases the rotation speed when the pointer is down.
+    /// </summary>
     private void DecreaseSpeed()
     {
         ChangeSpeed(false);
     }
 
+    /// <summary>
+    /// Normalizes the rotation speed when the pointer is up.
+    /// </summary>
     private void NormaliseSpeed()
     {
         ChangeSpeed(true);
     }
 
+    /// <summary>
+    /// Changes the rotation speed based on the input.
+    /// </summary>
+    /// <param name="isIncrease">True if increasing speed, false if decreasing.</param>
     private void ChangeSpeed(bool isIncrease)
     {
         _isAccelerating = !isIncrease;
@@ -78,6 +97,10 @@ public class RotateAround : MonoBehaviour
         _speedUpdateCoroutine = StartCoroutine(UpdateSpeed(isIncrease));
     }
 
+    /// <summary>
+    /// Coroutine to update rotation speed over time.
+    /// </summary>
+    /// <param name="isIncrease">True if increasing speed, false if decreasing.</param>
     private IEnumerator UpdateSpeed(bool isIncrease)
     {
         if (isIncrease)
@@ -98,6 +121,10 @@ public class RotateAround : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the rotation speed value.
+    /// </summary>
+    /// <param name="value">The new rotation speed value.</param>
     private void UpdateRotationValue(float value)
     {
         _rotationSpeed = Mathf.Clamp(value, _initialSpeed / 2, _initialSpeed);

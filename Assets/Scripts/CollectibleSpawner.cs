@@ -18,6 +18,9 @@ public class CollectibleSpawner : MonoBehaviour
     private float _distanceToPlane;
     private Vector3 _centerPosition;
 
+    /// <summary>
+    /// Initializes necessary variables and starts spawning collectibles.
+    /// </summary>
     private void Start()
     {
         _centerPosition = _centerTransform.position;
@@ -27,6 +30,9 @@ public class CollectibleSpawner : MonoBehaviour
         StartCoroutine(StartSpawning());
     }
 
+    /// <summary>
+    /// Coroutine responsible for continuously spawning collectibles.
+    /// </summary>
     private IEnumerator StartSpawning()
     {
         while (true)
@@ -40,6 +46,10 @@ public class CollectibleSpawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Spawns a collectible at the specified position.
+    /// </summary>
+    /// <param name="spawnPosition">The position to spawn the collectible.</param>
     private void SpawnCollectible(Vector3 spawnPosition)
     {
         if (_collectibleQueue.Count >= _maxQueueSize)
@@ -56,6 +66,10 @@ public class CollectibleSpawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Finds a suitable position to spawn a collectible.
+    /// </summary>
+    /// <returns>The position to spawn the collectible, or Vector3.zero if no suitable position is found.</returns>
     private Vector3 FindSpawnPosition()
     {
         Vector3 spawnPosition = _centerPosition + (_planeTransform.position - _centerPosition).normalized * _distanceToPlane;
