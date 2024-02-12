@@ -13,6 +13,8 @@ namespace FlappyPlane.AirPlane
         private Transform _myTransform;
         private bool _isAccelerating = false;
         private float _currentFuel;
+        private bool _isTouchDevice;
+
         private float _responseModifier
         {
             get
@@ -30,6 +32,8 @@ namespace FlappyPlane.AirPlane
             _myTransform = transform;
             _currentFuel = 1f;
             _rb.useGravity = false;
+            _isTouchDevice = Application.platform == RuntimePlatform.Android ||
+            Application.platform == RuntimePlatform.IPhonePlayer;
         }
 
         /// <summary>
@@ -55,9 +59,41 @@ namespace FlappyPlane.AirPlane
         /// </summary>
         private void Update()
         {
-            if (!_isAccelerating && EventSystem.current.IsPointerOverGameObject())
-                return;
+            if (!_isAccelerating)
+            {
+                if (_isTouchDevice && IsPointerOverUIObject(Input.GetTouch(0).position) ||
+                    !_isTouchDevice && EventSystem.current.IsPointerOverGameObject())
+                    return;
+            }
 
+            if (_isTouchDevice)
+                HandleTouchDeviceControl();
+            else
+                HandleMouseControl();
+        }
+
+        /// <summary>
+        /// Handles control input for touch devices.
+        /// </summary>
+        private void HandleTouchDeviceControl()
+        {
+            if (!_isAccelerating && Input.touchCount > 0)
+            {
+                _isAccelerating = true;
+                InGameEventHandler.PointerDown?.Invoke();
+            }
+
+            if (_isAccelerating && Input.touchCount > 0)
+                Accelerate();
+            else if (_isAccelerating)
+                StopAccelerate();
+        }
+
+        /// <summary>
+        /// Handles control input for mouse.
+        /// </summary>
+        private void HandleMouseControl()
+        {
             if (Input.GetMouseButtonDown(0))
             {
                 _isAccelerating = true;
@@ -110,6 +146,21 @@ namespace FlappyPlane.AirPlane
         {
             _currentFuel = 1f;
             _rb.useGravity = true;
+        }
+
+        /// <summary>
+        /// Function to check if the touch position is over any UI element.
+        /// </summary>
+        /// <param name="touchPosition">The position of the touch.</param>
+        /// <returns>True if the touch is over a UI element, false otherwise.</returns>
+        private bool IsPointerOverUIObject(Vector2 touchPosition)
+        {
+            EventSystem eventSystem = EventSystem.current;
+            PointerEventData eventDataCurrentPosition = new PointerEventData(eventSystem);
+            eventDataCurrentPosition.position = touchPosition;
+            System.Collections.Generic.List<RaycastResult> results = new System.Collections.Generic.List<RaycastResult>();
+            eventSystem.RaycastAll(eventDataCurrentPosition, results);
+            return results.Count > 0;
         }
     }
 }
